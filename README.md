@@ -8,7 +8,7 @@ It supports:
 It's awesome, but if you want to perform the same request in multiple "folder", you
 will end up duplicating this requests, which make it hard to maintain.
 
-Also, it can be clumbersome to add new "scenario" ("folder") from Postman.
+Also, it can be clumbersome to add new "scenario" ("folder") from [Postman](https://www.postman.com).
 
 At @babylist, we (I?) use it to feed some pre-built scenario ("create a user", "sign-in", "add a product to the cart", "checkout").
 Even if using [Postman](https://www.postman.com) , you can group your requests in a folder ("checkout flow") and run `newman --folder "checkout flow"`, it can be tricky to maintain, if you're re-using "create a user" in different scenarios.
