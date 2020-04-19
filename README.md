@@ -52,10 +52,11 @@ stores them in `.env`
 Add this to your `ENV` or `.env`
 
 ```
-POSTMAN_API_KEY: POSTMAN_API_KEY (https://YOURPOSTMAN.postman.co/settings/me/api-keys)
-# postman environments ids (extract from) in json format
+# from https://YOURPOSTMAN.postman.co/settings/me/api-keys
+POSTMAN_API_KEY: POSTMAN_API_KEY ()
+# postman environments id/name in json format
 NEWMAN_SCENARIO_ENVIRONMENTS: {"staging1": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","staging3": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","staging5": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","local": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"}
-# postman collection id (extract from)
+# postman collection id
 NEWMAN_SCENARIO_COLLECTION_ID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
@@ -81,7 +82,7 @@ NewmanScenario::Scenario.configure(
 ### Stand alone
 
 > running the gem itself will prompt you to select a environment (by it's name, see configuration)
-and create or re-use a `NewmanScenario` newly created scenario can be saved.
+and create or re-use a `NewmanScenario` newly created scenario which can be saved.
 
     $ newman_scenario
 
