@@ -98,6 +98,17 @@ NewmanScenario::Scenario.new.run
 NewmanScenario::Scenario.new.run(scenario_name: 'Signup', environment_name: 'staging3', no_prompt: true)
 ```
 
+## Roadmap
+
+- [x] `NewmanScenario::Scenario.run`
+- [ ] Specs :(
+- [x] `newman_scenario` cli
+- [x] Configure using `NewmanScenario::Scenario.default_xxx`
+- [ ] Configure using `NewmanScenario::Scenario.configure`
+- [ ] Support for custom scenario variable
+- [ ] Support for local environment (no synchronised with Postman)
+- [ ] Fetch available collections and environments from Postman
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
