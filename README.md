@@ -45,7 +45,7 @@ Or install it yourself as:
 configure will guide you to set Postman related collection and environments (fetch from [Postman](https://www.postman.com) ), and
 stores them in `.env`
 
-  $ newman_scenario configure
+    $ newman_scenario configure
 
 ### Setting `.env` manually
 
@@ -80,15 +80,14 @@ NewmanScenario::Scenario.configure(
 
 ### Stand alone
 
-```
-# will prompt you to select a environment (by it's name, see configuration)
-# and create or re-use a `NewmanScenario`
-# newly created scenario can be saved
-newman_scenario
+>>> running the gem itself will prompt you to select a environment (by it's name, see configuration)
+and create or re-use a `NewmanScenario` newly created scenario can be saved.
 
-# will run the previous created scenario 'Signup' against staging3 environment (with no extra prompt)
-newman_scenario staging3 Signup
-```
+    $ newman_scenario
+
+> run with a environment name and/or a scenario name will run the previous created scenario 'Signup' against staging3 environment (with no extra prompt)
+
+    $ newman_scenario staging3 Signup
 
 ### Within App
 
