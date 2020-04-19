@@ -10,7 +10,7 @@ module NewmanScenario
   class Scenario
     DEFAULT_CUSTOM_SCENARIOS_FILE_PATH = 'newman_scenarios.json'.freeze
     DEFAULT_LAST_SCENARIO_FILE_PATH = '/tmp/last_newman_scenario.json'.freeze
-    DEBUG = true
+    DEBUG = false
 
     @default_collection_id = ENV['NEWMAN_SCENARIO_COLLECTION_ID']
     @default_environments = nil
