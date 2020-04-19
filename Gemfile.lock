@@ -1,0 +1,61 @@
+PATH
+  remote: .
+  specs:
+    newman_scenario (0.1.0)
+      dotenv (= 2.7.5)
+      httparty (= 0.16.2)
+      thor (= 1.0.1)
+      tty-prompt (= 0.19.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    diff-lcs (1.3)
+    dotenv (2.7.5)
+    equatable (0.6.1)
+    httparty (0.16.2)
+      multi_xml (>= 0.5.2)
+    multi_xml (0.6.0)
+    necromancer (0.5.1)
+    pastel (0.7.3)
+      equatable (~> 0.6)
+      tty-color (~> 0.5)
+    rake (10.5.0)
+    rspec (3.9.0)
+      rspec-core (~> 3.9.0)
+      rspec-expectations (~> 3.9.0)
+      rspec-mocks (~> 3.9.0)
+    rspec-core (3.9.1)
+      rspec-support (~> 3.9.1)
+    rspec-expectations (3.9.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.9.0)
+    rspec-mocks (3.9.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.9.0)
+    rspec-support (3.9.2)
+    thor (1.0.1)
+    tty-color (0.5.1)
+    tty-cursor (0.7.1)
+    tty-prompt (0.19.0)
+      necromancer (~> 0.5.0)
+      pastel (~> 0.7.0)
+      tty-reader (~> 0.6.0)
+    tty-reader (0.6.0)
+      tty-cursor (~> 0.7)
+      tty-screen (~> 0.7)
+      wisper (~> 2.0.0)
+    tty-screen (0.7.1)
+    wisper (2.0.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bundler (~> 2.0)
+  newman_scenario!
+  rake (~> 10.0)
+  rspec (~> 3.0)
+
+BUNDLED WITH
+   2.0.2

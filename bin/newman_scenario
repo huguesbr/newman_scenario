@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby -wU
+
+require 'newman_scenario'
+
+NewmanScenario::CLI.start( ARGV )
