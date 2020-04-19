@@ -42,8 +42,7 @@ Or install it yourself as:
 
 ### Using configure`
 
-configure will guide you to set Postman related collection and environments (fetch from [Postman](https://www.postman.com) ), and
-stores them in `.env`
+configure will guide you to set Postman related collection and environments (fetch from [Postman](https://www.postman.com) and supporting Workspaces), and stores them in `.env`
 
     $ newman_scenario configure
 
