@@ -25,23 +25,30 @@ module NewmanScenario
       attr_accessor :default_last_scenario_file_path
 
       def configure(default_api_key: nil, default_collection_id: nil, default_environment_ids: nil, default_custom_scenarios_file_path: nil, default_last_scenario_file_path: nil)
-        self.default_api_key = default_api_key || prompt.ask('Postman API Key:')
-        self.default_collection_id = default_collection_id || prompt.ask('Postman Collection Id:')
+        self.default_api_key = default_api_key || prompt.ask('Postman API Key (https://YOURPOSTMAN.postman.co/settings/me/api-keys):', value: ENV['POSTMAN_API_KEY'].to_s)
+        collections = fetch_postman('/collections', api_key: self.default_api_key).parsed_response&.fetch('collections', nil) || []
+        collections = collections.map { |collection| collection.slice('name', 'id').values }.to_h
+        self.default_collection_id = default_collection_id || prompt.select('Postman Collection', collections, default: 1)
         self.default_environment_ids = default_environment_ids
         unless self.default_environment_ids
-          self.default_environment_ids = {}
-          loop do
-            break unless prompt.yes?('Add environment?')
-
-            name = prompt.ask('Environment Name:')
-            id = prompt.ask('Environment Id:')
-            self.default_environment_ids[name] = id
-          end
+          environments = fetch_postman('/environments', api_key: self.default_api_key).parsed_response&.fetch('environments', nil) || []
+          environments = environments.map { |environment| environment.slice('name', 'id').values }.to_h
+          environment_ids = prompt.multi_select('Postman Collection', environments)
+          self.default_environment_ids = environments.select { |_, id| environment_ids.include?(id) }
         end
         self.default_custom_scenarios_file_path = default_custom_scenarios_file_path || prompt.ask('Custom scenarios file path:', value: DEFAULT_CUSTOM_SCENARIOS_FILE_PATH)
         self.default_last_scenario_file_path = default_last_scenario_file_path || prompt.ask('Last scenario file path:', value: DEFAULT_LAST_SCENARIO_FILE_PATH)
         if (env_path = prompt.ask('Save to: [enter to not save]', value: '.env'))
-          File.open(env_path, 'a') do |file|
+          envs = {
+            POSTMAN_API_KEY: self.default_api_key,
+            NEWMAN_SCENARIO_COLLECTION_ID: self.default_collection_id,
+            NEWMAN_SCENARIO_ENVIRONMENTS: self.default_environment_ids.to_json,
+            NEWMAN_SCENARIO_CUSTOM_COLLECTION_FILE_PATH: self.default_custom_scenarios_file_path,
+            NEWMAN_SCENARIO_LAST_SCENARIO_FILE_PATH: self.default_last_scenario_file_path,
+          }
+          existing_lines = File.readlines(env_path).reject { |line| envs.keys.include?(line.split(':').first.to_sym) }
+          File.open(env_path, 'w+') do |file|
+            existing_lines.each { |line| file.puts line }
             file.puts "POSTMAN_API_KEY: #{self.default_api_key}"
             file.puts "NEWMAN_SCENARIO_COLLECTION_ID: #{self.default_collection_id}"
             file.puts "NEWMAN_SCENARIO_ENVIRONMENTS: #{self.default_environment_ids.to_json}"
@@ -51,8 +58,15 @@ module NewmanScenario
         end
       end
 
+      def fetch_postman(url_path, expected_response_codes: [200], api_key: nil)
+        response = HTTParty.get("https://api.getpostman.com#{url_path}", headers: { 'X-Api-Key' => api_key})
+        raise Error, "Invalid response code: #{response.code}" unless expected_response_codes.include?(response.code)
+
+        response
+      end
+
       private
-      
+
       def prompt
         @prompt ||= TTY::Prompt.new
       end
@@ -91,7 +105,6 @@ module NewmanScenario
     def run(environment_name: nil, scenario_name: nil, bail: true, no_prompt: false)
       return if `which newman`.empty? && !prompt_to_install_newman
 
-      prompt_to_set_api_key unless api_key
       environment = environment_ids[environment_name.to_sym] if environment_name
       environment ||= prompt.select("Environment", environment_ids, default: 1)
       load_postman_environment(environment, no_prompt: no_prompt)
@@ -176,13 +189,6 @@ module NewmanScenario
       cmd('brew install newman')
     end
 
-    def prompt_to_set_api_key
-      prompt.warn 'Missing Postman API Key'
-      prompt.warn 'Get one from: https://YOURPOSTMAN.postman.co/settings/me/api-keys'
-      self.api_key = prompt.ask('Postman API Key')
-      cmd("echo \"POSTMAN_API_KEY: #{self.api_key}\" >> .env")
-    end
-
     def load_postman_environment(environment, no_prompt: false)
       reload =
         if no_prompt
@@ -204,10 +210,8 @@ module NewmanScenario
       end
     end
 
-    def fetch_postman_to_file(url_path, file_path)
-      response = HTTParty.get("https://api.getpostman.com/#{url_path}", headers: { 'X-Api-Key' => api_key})
-      raise Error, "Invalid response code: #{response.code}" unless response.code == 200
-
+    def fetch_postman_to_file(url_path, file_path, expected_response_codes: [200])
+      response = self.class.fetch_postman(url_path, expected_response_codes: expected_response_codes, api_key: api_key)
       File.open(file_path, 'w+') do |file|
         file.puts response.body
       end

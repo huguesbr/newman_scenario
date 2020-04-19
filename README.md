@@ -114,9 +114,9 @@ NewmanScenario::Scenario.new.run(scenario_name: 'Signup', environment_name: 'sta
 - [ ] Specs :(
 - [x] `newman_scenario` cli
 - [x] Configure using `NewmanScenario::Scenario.configure` or `newman_scenario configure`
+- [x] Fetch available collections and environments from Postman
 - [ ] Support for custom scenario variable
 - [ ] Support for local environment (no synchronised with Postman)
-- [ ] Fetch available collections and environments from Postman
 
 ## Development
 
