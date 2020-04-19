@@ -5,15 +5,18 @@ It supports:
 - loading a Postman environment file against the requests.
 - running a "folder" of requests
 
-This is great, but if you want to perform the same request in multiple "folder", you
+It's awesome, but if you want to perform the same request in multiple "folder", you
 will end up duplicating this requests, which make it hard to maintain.
 
 Also, it can be clumbersome to add new "scenario" ("folder") from Postman.
 
+At @babylist, we (I?) use it to feed some pre-built scenario ("create a user", "sign-in", "add a product to the cart", "checkout").
+Even if using [Postman](https://www.postman.com) , you can group your requests in a folder ("checkout flow") and run `newman --folder "checkout flow"`, it can be tricky to maintain, if you're re-using "create a user" in different scenarios.
+
 Here comes `NewmanScenario`.
 
-It basically allow you to cherry pick some requests to be chained, saved them, and run
-the newly created "scenario".
+It basically allow you to cherry pick some requests to be chained, saved them (locally), and run
+the newly created (locally) "scenario".
 
 The newly builded scenarios are just a list of requests, store in a json format file.
 The file is store in the current working directory under `newman_scenarios.json`
@@ -39,7 +42,7 @@ Or install it yourself as:
 
 ### Using configure`
 
-configure will guide you to set Postman related collection id and environments ids, and
+configure will guide you to set Postman related collection and environments (fetch from [Postman](https://www.postman.com) ), and
 stores them in `.env`
 
   $ newman_scenario configure
@@ -51,9 +54,9 @@ Add this to your `ENV` or `.env`
 ```
 POSTMAN_API_KEY: POSTMAN_API_KEY (https://YOURPOSTMAN.postman.co/settings/me/api-keys)
 # postman environments ids (extract from) in json format
-NEWMAN_SCENARIO_ENVIRONMENTS: {"staging1": "7361507-b4fcda81-db77-0000-AAAA-XXXXXX","staging3": "7361507-5f29f2c7-efff-0000-AAAA-XXXXX","staging5": "7361507-f360c483-6277-0000-AAAA-XXXXX","local": "2d98e3c9-27dc-0000-AAAA-XXXXX"}
+NEWMAN_SCENARIO_ENVIRONMENTS: {"staging1": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","staging3": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","staging5": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","local": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"}
 # postman collection id (extract from)
-NEWMAN_SCENARIO_COLLECTION_ID: 7361507-9627fa69-1fe0-0000-AAAA-XXXXXX
+NEWMAN_SCENARIO_COLLECTION_ID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
 ### Rails App
@@ -63,9 +66,9 @@ NEWMAN_SCENARIO_COLLECTION_ID: 7361507-9627fa69-1fe0-0000-AAAA-XXXXXX
 require 'newman_scenario'
 
 NewmanScenario::Scenario.configure(
-  default_api_key: 'PMAK-XXXX-XXXX', # ENV['POSTMAN_API_KEY'], no default value
-  default_collection_id: 'ABCDEF-XXXXX-XXXX-0000-AAAA-XXXXXX', # ENV['NEWMAN_SCENARIO_COLLECTION_ID'], no default value
-  default_environment_ids: { staging: 'YXZ-XXXXX-XXXX-0000-AAAA-XXXXXX', production: 'ABC-XXXXX-XXXX-0000-AAAA-XXXXXX'},  # ENV['NEWMAN_SCENARIO_ENVIRONMENTS'] (json format), no default value
+  default_api_key: 'PMAK-xxxxxxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', # ENV['POSTMAN_API_KEY'], no default value
+  default_collection_id: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', # ENV['NEWMAN_SCENARIO_COLLECTION_ID'], no default value
+  default_environment_ids: { staging: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', production: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'},  # ENV['NEWMAN_SCENARIO_ENVIRONMENTS'] (json format), no default value
   default_custom_scenarios_file_path: 'newman-scenarios.json', # ENV['NEWMAN_SCENARIO_CUSTOM_COLLECTION_FILE_PATH'], default: `newman_scenarios.json`
   default_last_scenario_file_path: '/tmp/last_newman_scenario.json' # ENV['NEWMAN_SCENARIO_LAST_SCENARIO_FILE_PATH'], default: `last_newman_scenario.json`
 )
@@ -92,13 +95,6 @@ newman_scenario staging3 Signup
 ```ruby
 require 'newman_scenario'
 
-# will run the previous created scenario 'Signup' against staging3 environment (with no extra prompt)
-NewmanScenario::Scenario.new.run(scenario_name: 'Signup', environment_name: 'staging3', no_prompt: true)
-```
-
-```ruby
-require 'newman_scenario'
-
 # will prompt you to select a environment (by it's name, see configuration)
 # and create or re-use a `NewmanScenario`
 # newly created scenario can be saved
@@ -107,6 +103,10 @@ NewmanScenario::Scenario.new.run
 # will run the previous created scenario 'Signup' against staging3 environment (with no extra prompt)
 NewmanScenario::Scenario.new.run(scenario_name: 'Signup', environment_name: 'staging3', no_prompt: true)
 ```
+
+## How it works
+
+Beside all the "trivial" Postman collection and environments fetching, it basically scan your collection, cherry pick the requests which match request names stored for a "custom" scenario, create a brand new (local) collection which requests and run this new scenario (collection) using `newman`
 
 ## Roadmap
 
