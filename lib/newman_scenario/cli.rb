@@ -2,6 +2,8 @@ require 'thor'
 
 module NewmanScenario
   class CLI < Thor
+    default_task :run_scenario
+
     desc "run_scenario environment scenario", "Run scenario using environment"
     long_desc <<~EOF
 
