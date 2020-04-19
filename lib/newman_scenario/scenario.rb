@@ -5,20 +5,57 @@ require 'dotenv/load'
 
 module NewmanScenario
   class Error < StandardError; end
+  class ConfigurationError < StandardError; end
 
   class Scenario
+    DEFAULT_CUSTOM_SCENARIOS_FILE_PATH = 'newman_scenarios.json'.freeze
+    DEFAULT_LAST_SCENARIO_FILE_PATH = '/tmp/last_newman_scenario.json'.freeze
+
     @default_collection_id = ENV['NEWMAN_SCENARIO_COLLECTION_ID']
     @default_environment_ids = nil
     @default_api_key = ENV['POSTMAN_API_KEY']
-    @default_custom_collection_file_path = ENV['NEWMAN_SCENARIO_CUSTOM_COLLECTION_FILE_PATH'] || 'newman_scenarios.json'.freeze
-    @default_last_scenario_file_path = ENV['NEWMAN_SCENARIO_LAST_SCENARIO_FILE_PATH'] || '/tmp/last_newman_scenario.json'.freeze
+    @default_custom_scenarios_file_path = ENV['NEWMAN_SCENARIO_CUSTOM_COLLECTION_FILE_PATH'] || DEFAULT_CUSTOM_SCENARIOS_FILE_PATH
+    @default_last_scenario_file_path = ENV['NEWMAN_SCENARIO_LAST_SCENARIO_FILE_PATH'] || DEFAULT_LAST_SCENARIO_FILE_PATH
 
     class << self
+      attr_accessor :default_api_key
       attr_accessor :default_collection_id
       attr_accessor :default_environment_ids
-      attr_accessor :default_api_key
-      attr_accessor :default_custom_collection_file_path
+      attr_accessor :default_custom_scenarios_file_path
       attr_accessor :default_last_scenario_file_path
+
+      def configure(default_api_key: nil, default_collection_id: nil, default_environment_ids: nil, default_custom_scenarios_file_path: nil, default_last_scenario_file_path: nil)
+        self.default_api_key = default_api_key || prompt.ask('Postman API Key:')
+        self.default_collection_id = default_collection_id || prompt.ask('Postman Collection Id:')
+        self.default_environment_ids = default_environment_ids
+        unless self.default_environment_ids
+          self.default_environment_ids = {}
+          loop do
+            break unless prompt.yes?('Add environment?')
+
+            name = prompt.ask('Environment Name:')
+            id = prompt.ask('Environment Id:')
+            self.default_environment_ids[name] = id
+          end
+        end
+        self.default_custom_scenarios_file_path = default_custom_scenarios_file_path || prompt.ask('Custom scenarios file path:', value: DEFAULT_CUSTOM_SCENARIOS_FILE_PATH)
+        self.default_last_scenario_file_path = default_last_scenario_file_path || prompt.ask('Last scenario file path:', value: DEFAULT_LAST_SCENARIO_FILE_PATH)
+        if (env_path = prompt.ask('Save to: [enter to not save]', value: '.env'))
+          File.open(env_path, 'a') do |file|
+            file.puts "POSTMAN_API_KEY: #{self.default_api_key}"
+            file.puts "NEWMAN_SCENARIO_COLLECTION_ID: #{self.default_collection_id}"
+            file.puts "NEWMAN_SCENARIO_ENVIRONMENTS: #{self.default_environment_ids.to_json}"
+            file.puts "NEWMAN_SCENARIO_CUSTOM_COLLECTION_FILE_PATH: #{self.default_custom_scenarios_file_path}"
+            file.puts "NEWMAN_SCENARIO_LAST_SCENARIO_FILE_PATH: #{self.default_last_scenario_file_path}"
+          end
+        end
+      end
+
+      private
+      
+      def prompt
+        @prompt ||= TTY::Prompt.new
+      end
     end
 
     attr_accessor :collection_id
@@ -29,25 +66,31 @@ module NewmanScenario
 
     def initialize(collection_id: nil, environment_ids: nil, api_key: nil, custom_collection_file_path: nil, last_scenario_file_path: nil)
       self.collection_id ||= self.class.default_collection_id
-      raise Error, 'Missing Collection Id' unless self.collection_id
+      raise ConfigurationError, 'Missing Collection Id' unless self.collection_id
 
       self.environment_ids ||= self.class.default_environment_ids
       self.environment_ids ||= JSON.parse(ENV['NEWMAN_SCENARIO_ENVIRONMENTS'], symbolize_names: true) if ENV['NEWMAN_SCENARIO_ENVIRONMENTS']
-      raise Error, 'Missing Environment Ids' unless self.environment_ids
+      raise ConfigurationError, 'Missing Environment Ids' unless self.environment_ids
 
       self.api_key ||= self.class.default_api_key
-      raise Error, 'Missing Postman API Key' unless self.api_key
+      raise ConfigurationError, 'Missing Postman API Key' unless self.api_key
 
-      self.custom_collection_file_path ||= self.class.default_custom_collection_file_path
-      raise Error, 'Missing Custom collection file path' unless self.custom_collection_file_path
+      self.custom_collection_file_path ||= self.class.default_custom_scenarios_file_path
+      raise ConfigurationError, 'Missing Custom collection file path' unless self.custom_collection_file_path
 
       self.last_scenario_file_path ||= self.class.default_last_scenario_file_path
-      raise Error, 'Missing Last scenario file path' unless self.last_scenario_file_path
-
+      raise ConfigurationError, 'Missing Last scenario file path' unless self.last_scenario_file_path
+    rescue ConfigurationError => e
+      prompt.warn e
+      if prompt.yes?('Configure?')
+        self.class.configure
+        retry
+      end
     end
 
     def run(environment_name: nil, scenario_name: nil, bail: true, no_prompt: false)
       return if `which newman`.empty? && !prompt_to_install_newman
+
       prompt_to_set_api_key unless api_key
       environment = environment_ids[environment_name.to_sym] if environment_name
       environment ||= prompt.select("Environment", environment_ids, default: 1)
@@ -69,6 +112,7 @@ module NewmanScenario
             scenario_requests.delete('duplicate')
             scenario_requests += prompt.multi_select("Requests (type to filter prefix, choose duplicate to perform action multiple times)", ['duplicate'] + all_request_names, cycle: true, filter: true)
             break unless scenario_requests.include?('duplicate')
+
           end
           if prompt.yes?('Save this custom scenario?')
             name = prompt.ask('Name?')
@@ -127,6 +171,7 @@ module NewmanScenario
     def prompt_to_install_newman
       prompt.warn 'missing newman command line'
       return false unless prompt.yes?('Install newman?')
+
       prompt.ok 'installing newman: brew install newman'
       cmd('brew install newman')
     end
@@ -160,7 +205,6 @@ module NewmanScenario
     end
 
     def fetch_postman_to_file(url_path, file_path)
-      puts "https://api.getpostman.com/#{url_path}"
       response = HTTParty.get("https://api.getpostman.com/#{url_path}", headers: { 'X-Api-Key' => api_key})
       raise Error, "Invalid response code: #{response.code}" unless response.code == 200
 

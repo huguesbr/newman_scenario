@@ -37,6 +37,15 @@ Or install it yourself as:
 
 ## Configuration
 
+### Using configure`
+
+configure will guide you to set Postman related collection id and environments ids, and
+stores them in `.env`
+
+  $ newman_scenario configure
+
+### Setting `.env` manually
+
 Add this to your `ENV` or `.env`
 
 ```
@@ -53,12 +62,13 @@ NEWMAN_SCENARIO_COLLECTION_ID: 7361507-9627fa69-1fe0-0000-AAAA-XXXXXX
 # config/initializers/newman_scenario.rb
 require 'newman_scenario'
 
-# NewmanScenario configuration
-NewmanScenario::Scenario.default_collection_id = 'ABCDEF-XXXXX-XXXX-0000-AAAA-XXXXXX' # ENV['NEWMAN_SCENARIO_COLLECTION_ID']
-NewmanScenario::Scenario.default_environment_ids = { staging: 'YXZ-XXXXX-XXXX-0000-AAAA-XXXXXX', production: ''ABC-XXXXX-XXXX-0000-AAAA-XXXXXX''} # ENV['NEWMAN_SCENARIO_ENVIRONMENTS'] (json format)
-NewmanScenario::Scenario.default_collection_id = 'PMAK-XXXX-XXXX' # ENV['POSTMAN_API_KEY']
-NewmanScenario::Scenario.default_custom_collection_file_path = 'newman-scenarios.json' # ENV['NEWMAN_SCENARIO_CUSTOM_COLLECTION_FILE_PATH'], default: `newman_scenarios.json`
-NewmanScenario::Scenario.default_last_scenario_file_path = 'newman-scenarios.json' # ENV['NEWMAN_SCENARIO_LAST_SCENARIO_FILE_PATH'], default: `last_newman_scenario.json`
+NewmanScenario::Scenario.configure(
+  default_api_key: 'PMAK-XXXX-XXXX', # ENV['POSTMAN_API_KEY'], no default value
+  default_collection_id: 'ABCDEF-XXXXX-XXXX-0000-AAAA-XXXXXX', # ENV['NEWMAN_SCENARIO_COLLECTION_ID'], no default value
+  default_environment_ids: { staging: 'YXZ-XXXXX-XXXX-0000-AAAA-XXXXXX', production: 'ABC-XXXXX-XXXX-0000-AAAA-XXXXXX'},  # ENV['NEWMAN_SCENARIO_ENVIRONMENTS'] (json format), no default value
+  default_custom_scenarios_file_path: 'newman-scenarios.json', # ENV['NEWMAN_SCENARIO_CUSTOM_COLLECTION_FILE_PATH'], default: `newman_scenarios.json`
+  default_last_scenario_file_path: '/tmp/last_newman_scenario.json' # ENV['NEWMAN_SCENARIO_LAST_SCENARIO_FILE_PATH'], default: `last_newman_scenario.json`
+)
 ```
 
 ## Usage
@@ -103,8 +113,7 @@ NewmanScenario::Scenario.new.run(scenario_name: 'Signup', environment_name: 'sta
 - [x] `NewmanScenario::Scenario.run`
 - [ ] Specs :(
 - [x] `newman_scenario` cli
-- [x] Configure using `NewmanScenario::Scenario.default_xxx`
-- [ ] Configure using `NewmanScenario::Scenario.configure`
+- [x] Configure using `NewmanScenario::Scenario.configure`
 - [ ] Support for custom scenario variable
 - [ ] Support for local environment (no synchronised with Postman)
 - [ ] Fetch available collections and environments from Postman

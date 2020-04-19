@@ -14,5 +14,15 @@ module NewmanScenario
     def run_scenario( environment = nil, scenario = nil )
       Scenario.new.run(scenario_name: scenario, environment_name: environment, bail: options[:bail])
     end
+
+    desc "configure", "configure Postman vs newman_scenario"
+    long_desc <<~EOF
+
+    `newman_scenario` needs some information about Postman environments and collections
+    Configure will prompt you for each and optionally save them to `.env`
+    EOF
+    def configure( )
+      Scenario.configure
+    end
   end
 end
