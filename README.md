@@ -80,7 +80,7 @@ NewmanScenario::Scenario.configure(
 
 ### Stand alone
 
->>> running the gem itself will prompt you to select a environment (by it's name, see configuration)
+> running the gem itself will prompt you to select a environment (by it's name, see configuration)
 and create or re-use a `NewmanScenario` newly created scenario can be saved.
 
     $ newman_scenario
