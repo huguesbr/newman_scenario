@@ -12,9 +12,10 @@ module NewmanScenario
 
     `run_scenario` will prompt for the postman environment to use and create or re-used an existing scenario
     EOF
-    option :bail
+    method_option :no_prompt, :aliases => "-x", :desc => "No prompt"
+    method_option :bail, :aliases => "-b", :desc => "Bailed after first request test failure"
     def run_scenario( environment = nil, scenario = nil )
-      Scenario.new.run(scenario_name: scenario, environment_name: environment, bail: options[:bail])
+      Scenario.new.run(scenario_name: scenario, environment_name: environment, bail: options[:bail], no_prompt: options.key?(:no_prompt))
     end
 
     desc "configure", "configure Postman vs newman_scenario"
