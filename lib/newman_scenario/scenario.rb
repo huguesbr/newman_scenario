@@ -44,7 +44,7 @@ module NewmanScenario
         unless self.default_environments
           environments ||= fetch_postman('/environments', api_key: self.default_api_key).parsed_response&.fetch('environments', nil) || []
           environments = environments.map { |environment| environment.slice('name', 'id').values }.to_h
-          environment_ids = prompt.multi_select('Postman Collection', environments)
+          environment_ids = prompt.multi_select('Environment', environments)
           self.default_environments = environments.select { |_, id| environment_ids.include?(id) }
         end
         self.default_custom_scenarios_file_path = default_custom_scenarios_file_path || prompt.ask('Custom scenarios file path:', value: DEFAULT_CUSTOM_SCENARIOS_FILE_PATH)
@@ -184,7 +184,7 @@ module NewmanScenario
         }
         write_to_json_file(last_scenario_file_path, new_collection)
       end
-      puts cmd("newman run #{last_scenario_file_path} -e /tmp/postman-environment-#{environment}.json#{bail ? ' --bail' : ''}")
+      exec("newman run #{last_scenario_file_path} -e /tmp/postman-environment-#{environment}.json#{bail ? ' --bail' : ''}")
     end
 
     private
