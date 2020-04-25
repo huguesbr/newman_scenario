@@ -26,7 +26,7 @@ module NewmanScenario
       attr_accessor :default_last_scenario_file_path
 
       def configure(default_api_key: nil, default_collection_id: nil, default_environments: nil, default_custom_scenarios_file_path: nil, default_last_scenario_file_path: nil)
-        self.default_api_key = default_api_key || prompt.ask('Postman API Key (https://YOURPOSTMAN.postman.co/settings/me/api-keys):', value: ENV['POSTMAN_API_KEY'].to_s)
+        self.default_api_key = default_api_key || prompt.mask('Postman API Key (https://YOURPOSTMAN.postman.co/settings/me/api-keys):', value: ENV['POSTMAN_API_KEY'].to_s)
         collections = nil
         environments = nil
         if prompt.yes?('Using workspace?')
