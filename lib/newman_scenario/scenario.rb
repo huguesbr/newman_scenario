@@ -57,7 +57,12 @@ module NewmanScenario
             NEWMAN_SCENARIO_CUSTOM_COLLECTION_FILE_PATH: self.default_custom_scenarios_file_path,
             NEWMAN_SCENARIO_LAST_SCENARIO_FILE_PATH: self.default_last_scenario_file_path,
           }
-          existing_lines = File.readlines(env_path).reject { |line| envs.keys.include?(line.split(':').first.to_sym) }
+          existing_lines = []
+          if File.exists?(env_path)
+            existing_lines = File.readlines(env_path).reject { |line| envs.keys.include?(line.split(':').first.to_sym) }
+          else
+            existing_lines = []
+          end
           File.open(env_path, 'w+') do |file|
             existing_lines.each { |line| file.puts line }
             file.puts "POSTMAN_API_KEY: #{self.default_api_key}"
