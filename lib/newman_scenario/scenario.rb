@@ -179,7 +179,7 @@ module NewmanScenario
         }
         write_to_json_file(last_scenario_file_path, new_collection)
       end
-      cmd("newman run #{last_scenario_file_path} -e /tmp/postman-environment-#{environment}.json#{bail ? ' --bail' : ''}")
+      puts cmd("newman run #{last_scenario_file_path} -e /tmp/postman-environment-#{environment}.json#{bail ? ' --bail' : ''}")
     end
 
     private
