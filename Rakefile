@@ -18,5 +18,5 @@ task :demo do
       `brew install asciinema`
     end
   end
-  exec('asciinema play -i 0.5 demo.cast')
+  exec('asciinema play -i 1 demo.cast')
 end
