@@ -27,7 +27,7 @@ The file is store in the current working directory under `newman_scenarios.json`
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'newman_scenario'
+  gem 'newman_scenario'
 ```
 
 And then execute:
@@ -37,6 +37,10 @@ And then execute:
 Or install it yourself as:
 
     $ gem install newman_scenario
+
+## Demo
+
+    $ rake demo
 
 ## Configuration
 
