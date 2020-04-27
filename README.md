@@ -21,6 +21,7 @@ the newly created (locally) "scenario".
 The newly builded scenarios are just a list of requests, store in a json format file.
 The file is store in the current working directory under `newman_scenarios.json`
 
+`NewmanScenario` heavily rely on the beautiful and powerful interactive command line prompt [TTY::Prompt](https://github.com/piotrmurach/tty-prompt), thanks to @piotrmurach
 
 ## Installation
 
@@ -93,9 +94,9 @@ and create or re-use a `NewmanScenario` newly created scenario which can be save
 
     $ newman_scenario
 
-> run with a environment name and/or a scenario name will run the previous created scenario 'Signup' against staging3 environment (with no extra prompt)
+> run with a environment name and/or a scenario name will run the previous created scenario 'Signup' against staging3 environment (with no extra prompt `-x` and bail on first scenario failure `-b`)
 
-    $ newman_scenario staging3 Signup
+    $ newman_scenario run_scenario -x -b staging3 Signup
 
 ### Within App
 
