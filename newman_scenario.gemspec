@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
   spec.executables = ['newman_scenario']
 
   spec.add_dependency 'tty-prompt', '0.19.0'
-  spec.add_dependency 'httparty', '0.16.2'
+  spec.add_dependency 'httparty', '0.21.0'
   spec.add_dependency 'thor', '1.0.1'
   spec.add_dependency 'dotenv', '2.7.5'
 
